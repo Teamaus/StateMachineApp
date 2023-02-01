@@ -14,10 +14,15 @@ import { EffectService } from './effect.service';
 import { contextReducer } from './context.reducer';
 import { entityTreeReducer } from './EntityTree.reducer';
 import { Op650Module } from './op650/op650.module';
+import { EmptyComponent } from './empty/empty.component';
+import { MOSTAppContainerComponent } from './most/mostapp-container/mostapp-container.component';
+import { MOSTModule } from './most/most.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    EmptyComponent,
+   
     
   ],
   imports: [
@@ -25,12 +30,12 @@ import { Op650Module } from './op650/op650.module';
     AppRoutingModule,
     ReactiveFormsModule,
     AtlasReduxModule,
-    
+    MOSTModule,
     StoreModule.forRoot({profile:entityTreeReducer,context:contextReducer},{metaReducers}),
     
     
    
-    EffectsModule.forRoot([EffectService]),
+   // EffectsModule.forRoot([EffectService, ]),
     
     
   ],

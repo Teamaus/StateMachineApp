@@ -1,4 +1,4 @@
-<form [formGroup]="frm">
+<!--<form [formGroup]="frm">
   <input formControlName = "id"/><br/>
   <button (click)="UpdateID()">Update</button>
   <button (click)="SetActive()">Active</button>
@@ -11,8 +11,14 @@
   <button (click)="T1_T2()">T1_2</button>
   <button (click)="EFFECT()">EFFECT</button>
   <button (click)="Ope1()">OPE1</button>
-</form>
-<a routerLink="650">650</a><br/>
-<atlas-component-container outletName="profile" [path]="activeID$"></atlas-component-container>
+</form>-->
 
+<button (click)="DO('123')">123</button>
+<button (click)="DO('456')">456</button>
 
+<!--<atlas-component-container outletName="profile" [path]="activeID$"></atlas-component-container>-->
+
+<most-app-container name="MAIN">
+    <router-outlet name="profile"></router-outlet>
+    
+</most-app-container>

@@ -3,10 +3,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { createEntityAdapter } from '@ngrx/entity';
 import { combineReducers, createFeatureSelector, createSelector, Store, union} from '@ngrx/store';
 import { StoreFeature } from '@ngrx/store/src/models';
-import { AtlasComponentContainerComponent } from 'atlas-redux';
+import { AtlasComponentContainerComponent, urlLevel } from 'atlas-redux';
 import { Observable } from 'rxjs';
 import { activeContextSelector, ADDOPERATION, getCurrentContext$, SETSHELLCONTEXT } from './context.reducer';
-import { EffectService } from './effect.service';
+import { EffectService, NAVENTITY } from './effect.service';
 import { TreeEntityAdapter } from './EntityTree.model';
 import { entityTreeActiveIDLevelSelector, entityTreeActivePathSelector, entityTreeIDSelector, entityTreePathSelector, TREE_ADDENTITY, TREE_SETACTIVE } from './EntityTree.reducer';
 import { ShellContextService } from './shell-context.service';
@@ -26,18 +26,12 @@ export class AppComponent {
   @ViewChild(AtlasComponentContainerComponent) container!:AtlasComponentContainerComponent
   activeID$:Observable<any>
   constructor(private store:Store<any>,private shellContextService:ShellContextService){
-    console.log("Running")
+     console.log("Running")
       
       this.store.select(state=>state)
       .subscribe(state=>console.log("STATE IS :",state))
       
-      let feature1 = createFeatureSelector("T")
-      let feature2 = createFeatureSelector("T")
-
-      this.store.select(feature1)
-      
-
-      this.store.select(feature2)
+    
       
       
    /*   let f3 = createSelector(
@@ -55,7 +49,7 @@ export class AppComponent {
 
       console.log("TREE IS:",state)
      this.store.select(state=>state)
-     .subscribe(state=>console.log("TREE STATE",state))
+     .subscribe(state=>console.log("TREE STATE LEVEL 2",state))
      
 
 
@@ -68,20 +62,24 @@ export class AppComponent {
 
      this.store.dispatch(ADDOPERATION({path:[],entity:{id:'123',category:"profileID"}}))
      this.store.dispatch(ADDOPERATION({path:["123"],entity:{id:'650',category:"profile"}}))
+
+
+     this.store.dispatch(ADDOPERATION({path:[],entity:{id:'456',category:"profileID"}}))
+     this.store.dispatch(ADDOPERATION({path:["456"],entity:{id:'650',category:"profile"}}))
      
-     
+     //this.store.dispatch(TREE_SETACTIVE({path:[],id:"123"}))
      
     
      
   }
   ngAfterViewInit(){
   
-      this.activeID$= this.store.select(entityTreeActiveIDLevelSelector("profile",this.container.level+1,"profile"))
-      this.activeID$.subscribe(activeID=>console.log("Active ID LEVEL:",activeID))
+    //  this.activeID$= this.store.select(entityTreeActiveIDLevelSelector("profile",this.container.level+1,"profile"))
+    //  this.activeID$.subscribe(activeID=>console.log("Active ID LEVEL:",activeID))
       
   }
   UpdateID(){
-    let id = this.frm.get("id")!.value
+    let id = this.frm.get("id")!.value  
     this.store.dispatch(A({ID:id}))
     
   }
@@ -140,6 +138,10 @@ export class AppComponent {
     
  //   let  context = this.shellContextService.addNewOperation(getCurrentContext$(),{id:ids[0],outlet:'profile',operation:[]},parent)
 
+  }
+  DO(id:string){
+    console.log("LEVEL ID",id)
+    this.store.dispatch(TREE_SETACTIVE({path:[],id:id}))
   }
 
 }

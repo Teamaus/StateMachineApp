@@ -10,6 +10,9 @@ import { Step2Component } from './step2/step2.component';
 import { Step3Component } from './step3/step3.component';
 import { AtlasReduxModule } from 'atlas-redux';
 import { TestOp650Component } from './test-op650/test-op650.component';
+import { MOSTAppContainerComponent } from '../most/mostapp-container/mostapp-container.component';
+import { AppModule } from '../app.module';
+import { MOSTModule } from '../most/most.module';
 
 
 @NgModule({
@@ -18,12 +21,14 @@ import { TestOp650Component } from './test-op650/test-op650.component';
     Step1Component,
     Step2Component,
     Step3Component,
-    TestOp650Component
+    TestOp650Component,
+    
   ],
   imports: [
     CommonModule,
     Op650RoutingModule,
     AtlasReduxModule,
+    MOSTModule,
     StoreModule.forFeature("op650",op650Reducer)
   ]
 })

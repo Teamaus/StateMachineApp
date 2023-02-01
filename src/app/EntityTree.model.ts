@@ -156,8 +156,8 @@ export class TreeEntityAdapter{
         console.log("GETACTIVEID",obj,level)
         let retval = undefined
         if (level == 0 && obj &&obj.activeID ){
-                console.log("FOUND=>>>",category)   
-                retval = obj.activeID[category]
+                    console.log("FOUND=>>>",category)   
+                    retval = {[category]:obj.activeID[category]}
         }
         else
         if (obj && obj.activeID)
