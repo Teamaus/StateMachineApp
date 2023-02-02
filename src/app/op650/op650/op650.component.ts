@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AtlasComponentContainerComponent } from 'atlas-redux';
@@ -37,6 +38,7 @@ export class Op650Component implements OnInit {
     this.stepInfo$.subscribe(activeID=>console.log("INFO=>>>Active ID LEVEL 2:",activeID))*/
    
     console.log("OP650:",this.activatedRoute)
+    
 
   }
   DO(step:string){
@@ -45,6 +47,11 @@ export class Op650Component implements OnInit {
   DO2(step:string){
     this.store.dispatch(ADDOPERATION({path:[this.profileID,"650"],entity:{id:step,category:"Info"}}))
   }
-
+  frm = new FormGroup({
+    name:new FormControl(''),
+    email:new FormControl('',Validators.email)
+    
+  })
+  
 }
   

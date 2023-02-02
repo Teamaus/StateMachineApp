@@ -1,11 +1,14 @@
 import { createAction, createFeatureSelector, createReducer, createSelector, on, props } from "@ngrx/store";
 
 import { getObj } from "atlas-redux";
+import { tree } from "d3";
 import { TreeEntityAdapter } from "./EntityTree.model";
 export const treeEntityAdapter = new TreeEntityAdapter()
 export const TREE_ADDENTITY = createAction("TREE_ADDENTITY",props<any>())
 export const TREE_SETACTIVE = createAction("TREESETACTIVE",props<any>())
 export const TREE_NOACTION = createAction("NOACTION")
+export const ADD_SNAPSHOT= createAction("ADD_SNAPSHOT",props<any>())
+export const REMOVE_SNAPSHOT = createAction("REMOVE_SNAPSHOT",props<any>())
 export const entityTreeReducer = createReducer(
    treeEntityAdapter.adapter.getInitialState(),
    on(TREE_ADDENTITY,(state,payload)=>{
@@ -14,7 +17,9 @@ export const entityTreeReducer = createReducer(
                                         return retval 
    }),
    on(TREE_SETACTIVE,(state,payload)=>treeEntityAdapter.setActive(state,payload.path,payload.id)),
-   on(TREE_NOACTION,(state)=>{return {...state}})
+   on(TREE_NOACTION,(state)=>{return {...state}}),
+   on(ADD_SNAPSHOT,(state,payload:any)=>treeEntityAdapter.addSnapShot(state,payload.path,payload.snapshot)),
+   on(REMOVE_SNAPSHOT,(state,payload:any)=>treeEntityAdapter.removeSnapShot(state,payload.path))
 
 
    

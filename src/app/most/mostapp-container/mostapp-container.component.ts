@@ -1,12 +1,17 @@
 import { Component, ContentChild, ContentChildren, Input, OnInit, Query, QueryList } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationCancel, NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { selector } from 'd3';
+
+
 import { Subject } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 
 import { entityTreeActiveIDLevelSelector } from '../../EntityTree.reducer';
+import { MOSTComponentService } from '../mostcomponent.service';
+
+import { MOSTContainerService } from '../mostcontainer.service';
+import { MOSTSnapshotService } from '../mostsnapshot.service';
 export const goBack = (activatedRoute:ActivatedRoute ,level:number):any=>
 {
     if (activatedRoute.parent)
@@ -20,81 +25,44 @@ export const urlLevel=(url:string)=>url=="/"?0:url.replace("//","").split("/").l
 @Component({
   selector: 'most-app-container',
   templateUrl: './mostapp-container.component.html',
-  styleUrls: ['./mostapp-container.component.css']
+  styleUrls: ['./mostapp-container.component.css'],
+  providers:[MOSTContainerService]
 })
 export class MOSTAppContainerComponent implements OnInit {
   @ContentChildren(RouterOutlet) outlets!:QueryList<RouterOutlet>
   @Input() selectors:any = {}
   @Input() name = ""
-  currentPath:any = {}
-  URL = this.router.url
-  canNav = true
-  activeID$= this.store.select(entityTreeActiveIDLevelSelector("profile",urlLevel(this.URL),"profile"))
-  subject = new Subject()
-  constructor(private router:Router,private activatedRoute:ActivatedRoute,private store:Store<any>) {
-    console.log(this.name+":MOSTAPPURL=>>>",this.URL,this.router.url)
+  constructor(private mostContainerService:MOSTContainerService,private mostSnapshotService:MOSTSnapshotService,private store:Store<any>) {
+  
    }
 
   ngOnInit(): void {
-      this.router.events.subscribe(
-        event=>{
-          this.canNav = event instanceof NavigationEnd
-          console.log("ROUTE EVENT:",event)
-          if (this.canNav){
-            this.subject.next()
-          }
-        }
-      )
   }
-  NavTo(path:any){
-    if (this.URL==this.router.url)
-    {
-      this.router.navigate([{outlets:path}],{relativeTo:this.activatedRoute})
-    }
-    else{
-        this.router.navigate([{outlets:path}],{relativeTo:goBack(this.activatedRoute,urlLevel(this.URL))})
-    }
-    let key = Object.keys(path)[0]
-    this.currentPath[key]=path[key]
-
-  }
-  NavTo2(path:any){
-    if (this.canNav){
-      this.NavTo(path)
-    }
-    else{
-      this.subject.pipe(take(1))
-      .subscribe(()=>this.NavTo2(path))
-    }
-  }
+  
   ngAfterContentInit(){
-    for (let outlet of this.outlets){
-      let obj:any = outlet 
-       this.selectors = {...this.selectors,[obj.name]:entityTreeActiveIDLevelSelector("profile",urlLevel(this.URL)+1,obj.name)} 
-
-       
-    }
+    let selectors:any = this.outlets.reduce((acc,outlet)=>{return {...acc,[(outlet as any).name]:entityTreeActiveIDLevelSelector("profile",urlLevel(this.mostContainerService.URL)+1,(outlet as any).name)}},{})
+    console.log("SELECTORS",selectors)
     console.log("SELCETORS:",this.selectors)
     for (let outlet of this.outlets){
-      let selector = this.selectors[(outlet as any).name]
+      let selector = selectors[(outlet as any).name]
       this.store.select(selector)
       .pipe(
           map(path=>[(outlet as any).name,path]),
           map(([name,path])=>{return (!path||!path[name])?[name,{[name]:"EMPTY"}]:[name,path]}),
-          filter((([name,path])=>this.currentPath[name]!=path[name])),
+          filter((([name,path])=>this.mostContainerService.currentPath[name]!=path[name])),
           map(([name,path])=>path)
           )
       .subscribe(
         (path)=>
         {
-         
-          this.NavTo2(path)
+            this.mostSnapshotService.saveSnapshot()
+            this.mostContainerService.NavTo2(path)
         
         })
-      }
     
+    }
   }
-    //console.log(this.name+":SELECTORS=>>>",this.selectors)
+    
  
   
 }

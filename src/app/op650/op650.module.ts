@@ -13,6 +13,7 @@ import { TestOp650Component } from './test-op650/test-op650.component';
 import { MOSTAppContainerComponent } from '../most/mostapp-container/mostapp-container.component';
 import { AppModule } from '../app.module';
 import { MOSTModule } from '../most/most.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { MOSTModule } from '../most/most.module';
     Op650RoutingModule,
     AtlasReduxModule,
     MOSTModule,
-    StoreModule.forFeature("op650",op650Reducer)
+    StoreModule.forFeature("op650",op650Reducer),
+    ReactiveFormsModule
   ]
 })
 export class Op650Module { }

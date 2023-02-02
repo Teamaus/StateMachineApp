@@ -153,7 +153,6 @@ export class TreeEntityAdapter{
 
     getActiveID(state:EntityState<any>,level:number,category:string):any{
         let obj:any = state
-        console.log("GETACTIVEID",obj,level)
         let retval = undefined
         if (level == 0 && obj &&obj.activeID ){
                     console.log("FOUND=>>>",category)   
@@ -172,14 +171,10 @@ export class TreeEntityAdapter{
 
     }
     
-
-    
-    
-
-
     addSnapShot(state:EntityState<any>,path:string[],snapShot:any){
-        let f=(state:EntityState<any>,path:any)=>this.getObj(state,path,(inState)=>{return {...inState,snapShot:snapShot}})
-     
+        let f=(state:EntityState<any>,path:any)=>
+            this.getObj(state,path,
+            (inState)=>{return {...inState,snapShot:snapShot}})
         return f(state,path) 
     }
     removeSnapShot(state:EntityState<any>,path:string[]){

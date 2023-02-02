@@ -66,6 +66,8 @@ export class AppComponent {
 
      this.store.dispatch(ADDOPERATION({path:[],entity:{id:'456',category:"profileID"}}))
      this.store.dispatch(ADDOPERATION({path:["456"],entity:{id:'650',category:"profile"}}))
+     this.store.dispatch(ADDOPERATION({path:["456"],entity:{id:'550',category:"profile"}}))
+
      
      //this.store.dispatch(TREE_SETACTIVE({path:[],id:"123"}))
      
