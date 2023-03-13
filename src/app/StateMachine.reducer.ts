@@ -55,18 +55,21 @@ export const  compositeActionMetaReducer = (reducer:ActionReducer<any>)=>{
       
       if (!isCompositeAction(action))
       {
-        console.log("ACTION",action)
+          console.log("META ACTION NOT COMPOSITE",action)
           return reducer(state,action)
       }
       else
       {
        
-        let retval = state
+       
+        console.log("META ACTIONS",(action as CompositeAction).actions)
+        let retval =  (action as CompositeAction).actions.reduce((acc,action)=>reducer(acc,action),state)
+        /*let retval = state
         for (let act of (action as CompositeAction).actions)
           {
-              console.log("ACTION",act)
+              console.log("ACTION=>>",act)
               retval = reducer(retval,act)
-          }
+          }*/
           return retval 
     }
   }
@@ -140,10 +143,10 @@ export const  mappedReducer = (reducer:ActionReducer<any>,mappingFunc:MappingSta
 
           
           let f = mappingFunc(state,undefined)
-          console.log("GETACTIVEPATH",f)
+          
           let mappedState =  reducer(getObj(state,f),action)
 
-          console.log("STATE TO MAPP",state,mappedState)
+          
           
           let retval = makeObj(state,state,mappedState,f)
 
@@ -193,10 +196,11 @@ export interface CompositeAction extends Action{
 
 export function isCompositeAction(obj:any):obj is CompositeAction
 {
-  console.log("YUP",obj)
+  
   return (obj.type!=undefined && obj.actions!=undefined)
 }
 export function createCompositeAction(actionName:string,...actions:Action[]){
+  console.log("COMPOSITE ACTION NAME",actionName)
   return {type:actionName,actions:actions}
 }
 

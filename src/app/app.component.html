@@ -1,24 +1,21 @@
-<!--<form [formGroup]="frm">
-  <input formControlName = "id"/><br/>
-  <button (click)="UpdateID()">Update</button>
-  <button (click)="SetActive()">Active</button>
-  <button (click)="DeActivate()">DeActive</button>
-  <button (click)="SearchID()">Set SearchID</button>
-  <button (click)="F()">F</button>
-  <button (click)="T1()">T1</button>
-  <button (click)="T2()">T2</button>
-  <button (click)="T1T2()">T12</button>
-  <button (click)="T1_T2()">T1_2</button>
-  <button (click)="EFFECT()">EFFECT</button>
-  <button (click)="Ope1()">OPE1</button>
-</form>-->
-
-<button (click)="DO('123')">123</button>
-<button (click)="DO('456')">456</button>
-
+<div>
+<button (click)="NAVTO('450')">Map FE</button>
+</div>
+<div>
+<div>Profile</div>
+<atlas-entity-panel slice="profile" category="profileID"></atlas-entity-panel>
+<atlas-add-entity slice="profile" category="profileID"></atlas-add-entity>
+</div>
 <!--<atlas-component-container outletName="profile" [path]="activeID$"></atlas-component-container>-->
+<div>Operations</div>
+<atlas-entity-panel slice="profile" category="profile" [path]="['123']" ></atlas-entity-panel>
+<atlas-add-entity slice="profile" category="profile" [path$]="path$"></atlas-add-entity>
 
 <most-app-container name="MAIN">
     <router-outlet name="profile"></router-outlet>
     
 </most-app-container>
+<router-outlet>
+
+</router-outlet>
+

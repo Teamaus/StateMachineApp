@@ -5,6 +5,7 @@ import { entityActions, getAdapterSelectors } from "atlas-redux"
 import { tree } from "d3"
 import { find } from "rxjs/operators"
 import { Context, ContextAdapter, createContextAdapter } from "./context.model"
+import { most_log } from "./most/most.log"
 
 export interface EntityTree<T extends {id:string,path:string}>{
 
@@ -73,7 +74,7 @@ export class TreeEntityAdapter{
                 
 
     }
-    getObj(state:EntityState<any>,path:string[],objFunc:(inState:any)=>any)
+    setObjValue(state:EntityState<any>,path:string[],objFunc:(inState:any)=>any)
     {
 
         let retval:any  = {...state}
@@ -82,7 +83,7 @@ export class TreeEntityAdapter{
                 if (path.length == 0 ){
                         if(!retval.entities) 
                             retval = {...retval,...this.adapter.getInitialState()}
-                        console.log("RETVAL",retval)
+                        
                         retval = objFunc(retval)
                     }
                     else{
@@ -92,7 +93,7 @@ export class TreeEntityAdapter{
                             retval = {...retval,
                             entities:
                                 {...retval.entities,
-                                    [first]:this.getObj(retval.entities[first],rest,objFunc)
+                                    [first]:this.setObjValue(retval.entities[first],rest,objFunc)
                                 }}
                         }
                         else{
@@ -107,18 +108,34 @@ export class TreeEntityAdapter{
              let entityPath = path 
              let f=(state:EntityState<any>,path:any)=>
              {
-                return this.getObj(state,path,(retval)=>this.adapter.addOne({...entity,path:entityPath},retval))
+                return this.setObjValue(state,path,(retval)=>this.adapter.addOne({...entity,path:entityPath},retval))
              }
              
             return f(state,path) 
     }
+    getEntitiesByCategory(state:EntityState<any>,categoryPath:string[]):any
+    {
+        let obj:any = state
+        if (!obj)
+            return obj
+        let active = obj.activeID
+        let [first,...rest]=categoryPath
+        if (rest.length==0){
+            if (obj.active[first])
+            return state.entities[first].entities
+        }
+        return this.getEntitiesByCategory(state.entities[first],rest)
+    }
+         
+
+    
     setActive(state:EntityState<any>,path:string[],id:string){
              let entity = this.getEntity(state,[...path,id])
              console.log("ENTITY FOUND",entity,id,path)
              let f=(state:EntityState<any>,path:any)=>
              {
                 
-                return this.getObj(state,path,(retval)=>{return {...retval,activeID:{...retval.activeID,[entity.category]:entity.id}}})
+                return this.setObjValue(state,path,(retval)=>{return {...retval,activeID:{...retval.activeID,[entity.category]:entity.id}}})
              }
              let retval = f(state,path) 
              
@@ -133,6 +150,69 @@ export class TreeEntityAdapter{
             retval =  this.getEntity(obj.entities[first],rest)
         }
         return retval 
+    }
+    getEntities2(state:EntityState<any>,activeEntity:any,entitiesCategory='')
+    {
+        most_log(this.getEntities2,"ACTIVE ENTITY",activeEntity)
+        let path = [...activeEntity.path]
+      
+        if (activeEntity.category!=entitiesCategory){
+            path = [activeEntity.id,...path]    
+
+        }
+        
+        most_log(this.getEntities2,"PATH=>>>",path,activeEntity.category,entitiesCategory)
+        return this.getEntities(state,path,entitiesCategory)
+    }
+    getEntities(state:EntityState<any>,path:string[],entitiesCategory=''):any{
+        
+        let filterEntities=(entities:any,category:any)=>
+            Object.keys(entities).filter((key:any)=>entities[key].category==category)
+            .reduce((acc:any,id)=>{return {...acc,[id]:entities[id]}},{})
+        console.log("GET ENTITIES",state,path,"ent Category:",entitiesCategory)
+        if (!path  ||path.length==0){
+            if (state)
+            {
+                if (entitiesCategory=='')
+                {
+                    most_log(this,"CATEGORY NO CATEGORY")
+                    return state.entities
+                }
+                else
+                {
+                    most_log(this,"CATEGORY:",entitiesCategory)
+                    return filterEntities(state.entities,entitiesCategory)
+                    
+                }
+            
+                    
+            }
+            else
+                return state
+        }
+        let [first,...rest] = path
+        console.log("FIRST=>>>",first)
+        return this.getEntities(state.entities[first],rest,entitiesCategory)
+    }
+    getActivCategoryPath(state:EntityState<any>,category:string){
+        let obj:any = state
+        if (obj && obj.activeID){
+            if (obj.activeID[category]){
+                return [category]
+            }
+            else{
+                for (let cat in obj.activeID){
+                    let retval:any = this.getActivCategoryPath(obj.entities[obj.activeID[cat]],category)
+                    if (retval)
+                        return [cat,...retval]
+                    else
+                        return retval
+                }
+            }
+        }
+        else{
+            return undefined
+        }
     }
     getActivePath(state:EntityState<any>):any{
         let obj:any = state
@@ -150,7 +230,28 @@ export class TreeEntityAdapter{
         return retval 
 
     }
-
+    getActiveEntity(state:EntityState<any>,outlet:string){
+        let obj:any = state 
+        let retval:any = {}
+        if (obj && obj.activeID){
+            for (let category in obj.activeID){
+                
+                if (category==outlet){
+                        retval = obj.entities[obj.activeID[category]]
+                    break;
+                }
+                else{
+                  
+                    retval = this.getActiveEntity(obj.entities[obj.activeID[category]],outlet)
+                }
+            }
+            
+        
+        }
+        console.log("RETVAL",retval)
+        return retval 
+        
+    }
     getActiveID(state:EntityState<any>,level:number,category:string):any{
         let obj:any = state
         let retval = undefined
@@ -173,12 +274,12 @@ export class TreeEntityAdapter{
     
     addSnapShot(state:EntityState<any>,path:string[],snapShot:any){
         let f=(state:EntityState<any>,path:any)=>
-            this.getObj(state,path,
+            this.setObjValue(state,path,
             (inState)=>{return {...inState,snapShot:snapShot}})
         return f(state,path) 
     }
     removeSnapShot(state:EntityState<any>,path:string[]){
-        let f=(state:EntityState<any>,path:any)=>this.getObj(state,path,(inState)=>{let {snapShot,...retval}=inState;return retval})     
+        let f=(state:EntityState<any>,path:any)=>this.setObjValue(state,path,(inState)=>{let {snapShot,...retval}=inState;return retval})     
         return f(state,path)
     }
 

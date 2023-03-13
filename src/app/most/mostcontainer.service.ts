@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationCancel, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { filter, take, takeUntil } from 'rxjs/operators';
 import { goBack, urlLevel } from './mostapp.utils';
 
 @Injectable()
@@ -24,10 +24,11 @@ export class MOSTContainerService {
   )
   this.router.events.pipe(
     filter(event=>event instanceof NavigationStart)
+    
   ).
   subscribe(
     event=>{
-      this.canNav = false
+        this.canNav = false
       
       
     }
@@ -37,10 +38,12 @@ export class MOSTContainerService {
 private NavTo(path:any){
   if (this.URL==this.router.url)
   {
+    console.log("NAVIGATING",this.URL,path)
     this.router.navigate([{outlets:path}],{relativeTo:this.activatedRoute})
   }
   else{
-      this.router.navigate([{outlets:path}],{relativeTo:goBack(this.activatedRoute,urlLevel(this.URL))})
+      let relTo = goBack(this.activatedRoute,urlLevel(this.URL))
+      this.router.navigate([{outlets:path}],{relativeTo:relTo})
   }
   let key = Object.keys(path)[0]
   this.currentPath[key]=path[key]

@@ -1,15 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, InjectionToken, Type } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { A1, A1A2, A2 } from './TestReducers';
-import {switchMap, tap} from 'rxjs/operators'
-import { createAction, props } from '@ngrx/store';
-import { createCompositeAction } from './StateMachine.reducer';
-import { ADDOPERATION } from './context.reducer';
-import { of } from 'rxjs';
-import { RouterTestingModule } from '@angular/router/testing';
+
+import {map, switchMap, tap} from 'rxjs/operators'
+import { Action, ActionCreator, createAction, props } from '@ngrx/store';
+import { CompositeAction, createCompositeAction } from './StateMachine.reducer';
+
+import { Observable, of } from 'rxjs';
+
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { TREE_NOACTION } from './EntityTree.reducer';
+import { TREE_ADDENTITY, TREE_NOACTION, TREE_SETACTIVE } from './EntityTree.reducer';
+
+import { MOSTSnapshotService } from './most/mostsnapshot.service';
+import { MOST_createShellEntityAction } from './MOSTShell.actions';
+import { ThrowStmt } from '@angular/compiler';
+
+export const SLICES = new InjectionToken<string[]>("SLICES")
 export const NAVENTITY = createAction("NAVENTITY",props<any>())
+
 export const goBack = (activatedRoute:ActivatedRoute ,level:number):any=>
 {
     if (activatedRoute.parent)
@@ -20,55 +27,73 @@ export const goBack = (activatedRoute:ActivatedRoute ,level:number):any=>
     return level==0?activatedRoute:activatedRoute.parent?goBack(activatedRoute.parent,level-1):activatedRoute}
 export const urlLevel=(url:string)=>url=="/"?0:url.replace("//","").split("/").length-1
 
+function MOSTCreateEffect(actions$:Actions<Action>,triggerAction:ActionCreator<any>,serviceFunc:(data:any)=>Observable<any>,composeActionFunc:(triggerActionParameters:any,data:any)=>CompositeAction)
+{
+    return createEffect(
+      ()=>actions$.pipe(
+        ofType(triggerAction),
+        tap(data=>console.log("EFFECT",data)),
+        switchMap((triggerActionParamters:any)=>serviceFunc(triggerActionParamters).pipe(
+            map(data=>[triggerActionParamters,data]),
+            tap(([triggerActionParameters,data])=>console.log("EFFECT 2",data)),
+           switchMap(([triggerActionParameters,data])=>of(...composeActionFunc(triggerActionParameters,data).actions))
+        ))  
+      
+        
+         
+            
+         
+        )
+      
+        
+      )
+    
+}
 @Injectable({
   providedIn: 'root'
 })
-export class EffectService {
+export class EffectService{
 
-  effect = createEffect(
-    ()=>this.actions$.pipe(
-      ofType(A1A2),
-      tap(data=>console.log("HERE EFFECT",(data as any).route)),
-      switchMap((data:any)=>
-      [
-        A1({A1:"EFFECT1"}),A2({A2:"EFFECT2"})
-    ])
-    )
-  )
-  routingEffect = createEffect(
-    ()=>this.actions$.pipe(
-      ofType(NAVENTITY),
-      tap(data=>console.log("HERE EFFECT",(data as any).route)),
-      
-      tap ((data:any)=>
-      {
-        let route = (data as any).route
-        if (route)
-        {
-          route = {...route,_futureSnapshot:{...route.futureSnapshot}}
-          this.router.navigate([{outlets:{[data.entity.category]:data.entity.id}}])
-        }
-        else
-          this.router.navigate([{outlets:{[data.entity.category]:data.entity.id}}])
-
-      }),
-      
-      switchMap(data=>[TREE_NOACTION()])
-      
-    )
-  )
   
-  constructor(private actions$:Actions,private router:Router,private activatedRoute:ActivatedRoute) 
-  {
+  addEffectFunc = (slice:string)=>{
+    console.log("Creating Effect",slice)
+    return createEffect(
+    ()=>this.actions$.pipe(
+      ofType(MOST_createShellEntityAction(slice).ADD_ENTITY),
+      tap(data=>console.log("ADD=>EFFECT",data)),
+      switchMap((actionParameters)=>this.snapShotService.saveSnapshot$(slice)
+      .pipe(
+          tap(data=>console.log("IN HERE EFFECT DATA ACTION",data)),
+          switchMap(data=>[createCompositeAction("COMPOSITE",data,TREE_ADDENTITY(slice)({path:actionParameters.path,entity:actionParameters.entity}),TREE_SETACTIVE("profile")({path:actionParameters.path,id:actionParameters.entity.id}))])
+      ))
+    )
+  )}
+  activeEffectFunc =(slice:string)=> createEffect(
+    ()=>this.actions$.pipe(
+      ofType(MOST_createShellEntityAction(slice).ACTIVATE_ENTITY),
+      tap(data=>console.log("ACTIVATE=>EFFECT",data)),
+      switchMap((actionParameters)=>this.snapShotService.saveSnapshot$(slice)
+      .pipe(
+          tap(data=>console.log("IN HERE EFFECT",actionParameters)),
+          switchMap(data=>[createCompositeAction("COMPOSITE",data,TREE_SETACTIVE("profile")({path:actionParameters.path,id:actionParameters.entity.id}))])
+      ))
+    )
+  )
+  //addOperation = this.addEffectFunc("profile")
+  
 
-        console.log(this.effect)
-        this.router.events.subscribe(
-          (event:any)=>{
-            if (event instanceof NavigationEnd){
-                 
-            }
-          }
-        )
+  
+  constructor(private actions$:Actions,private snapShotService:MOSTSnapshotService,@Inject(SLICES) private slices:string[]){
 
+      console.log("SLICES=>>>",this.slices)
+      let obj = this as any
+      this.slices.map((slice,index)=>obj["addeffects"+index] = 
+      this.addEffectFunc(slice))
+      this.slices.map((slice,index)=>obj["activeEffects"+index] = 
+      this.activeEffectFunc(slice))
+
+
+       
+      
    }
 }

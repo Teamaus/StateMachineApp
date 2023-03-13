@@ -1,53 +1,44 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { createEntityAdapter } from '@ngrx/entity';
-import { combineReducers, createFeatureSelector, createSelector, Store, union} from '@ngrx/store';
-import { StoreFeature } from '@ngrx/store/src/models';
-import { AtlasComponentContainerComponent, urlLevel } from 'atlas-redux';
+import { Router } from '@angular/router';
+import {  Store} from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { activeContextSelector, ADDOPERATION, getCurrentContext$, SETSHELLCONTEXT } from './context.reducer';
-import { EffectService, NAVENTITY } from './effect.service';
-import { TreeEntityAdapter } from './EntityTree.model';
-import { entityTreeActiveIDLevelSelector, entityTreeActivePathSelector, entityTreeIDSelector, entityTreePathSelector, TREE_ADDENTITY, TREE_SETACTIVE } from './EntityTree.reducer';
-import { ShellContextService } from './shell-context.service';
-import { A, B, createCompositeAction, D, F, S } from './StateMachine.reducer';
-import { A1, A1A2, A2, T1Reducer } from './TestReducers';
+import { MAP_TOKEN } from '../../../MapApp/src/app/MapToken';
+import { entitiesByActiveCategorySelector, entityTreeActiveIDLevelSelector, entityTreeActivePathSelector, entityTreeIDSelector, entityTreePathSelector, pathByActiveCategorySelector, TREE_ADDENTITY, TREE_SETACTIVE } from './EntityTree.reducer';
+import { most_log } from './most/most.log';
+import { MOSTComponentService } from './most/mostcomponent.service';
+import { MOSTShell_EntityActions, MOST_createShellEntityAction } from './MOSTShell.actions';
+
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  providers:[MOSTComponentService]
 })
 export class AppComponent {
   title = 'StateMachineApp';
+  path$ = this.store.select(entityTreeActivePathSelector("profile"))
+
+  activeID:any 
   frm = new FormGroup({
     id:new FormControl('')
   })
-  @ViewChild(AtlasComponentContainerComponent) container!:AtlasComponentContainerComponent
+  
   activeID$:Observable<any>
-  constructor(private store:Store<any>,private shellContextService:ShellContextService){
-     console.log("Running")
+  constructor(private store:Store<any>,private router:Router,@Inject(MAP_TOKEN) private token:string){
+     console.log("Running",this.token)
       
       this.store.select(state=>state)
-      .subscribe(state=>console.log("STATE IS :",state))
+      .subscribe(state=>{most_log(this,"STATE IS :",state);this.activeID = state.profile.activeID})
       
-    
+      this.store.select(entitiesByActiveCategorySelector("profile","profile"))
+      .subscribe(s=>console.log("ACTIVE ENTITY",s))
       
+      this.store.select(pathByActiveCategorySelector("profile","step"))
+      .subscribe(p=>most_log(this,"ACTIVE CATEGORY PATH step",p))
+   
       
-   /*   let f3 = createSelector(
-          feature1,feature2,
-          (t1:any,t2:any)=>{return {...t1.T1,...t2.T2}}
-      )
-      this.store.select(f3)
-      .subscribe(t=>console.log("=>>>>",t))*/
-      let adapter = new TreeEntityAdapter()
-      let entityAdapter = createEntityAdapter()
-
-      let state = entityAdapter.getInitialState()
-      console.log("TREE IS:",state)
-    //  state = adapter.addEntity(state,[],{id:"123"})
-
-      console.log("TREE IS:",state)
      this.store.select(state=>state)
      .subscribe(state=>console.log("TREE STATE LEVEL 2",state))
      
@@ -59,91 +50,33 @@ export class AppComponent {
      this.activeID$= this.store.select(entityTreeActiveIDLevelSelector("profile",1,"profile"))
      this.activeID$.subscribe(activeID=>console.log("Active ID LEVEL:",activeID))
      
+     let actions = MOST_createShellEntityAction("profile") as MOSTShell_EntityActions
+     console.log("ACTIONS=>",actions)
+     this.store.dispatch(actions.ADD_ENTITY({path:[],entity:{id:'123',category:"profileID"}}))
+     this.store.dispatch(actions.ADD_ENTITY({path:["123"],entity:{id:'650',category:"profile"}}))
 
-     this.store.dispatch(ADDOPERATION({path:[],entity:{id:'123',category:"profileID"}}))
-     this.store.dispatch(ADDOPERATION({path:["123"],entity:{id:'650',category:"profile"}}))
-
-
-     this.store.dispatch(ADDOPERATION({path:[],entity:{id:'456',category:"profileID"}}))
-     this.store.dispatch(ADDOPERATION({path:["456"],entity:{id:'650',category:"profile"}}))
-     this.store.dispatch(ADDOPERATION({path:["456"],entity:{id:'550',category:"profile"}}))
-
+     this.store.dispatch(actions.ADD_ENTITY({path:[],entity:{id:'456',category:"profileID"}}))
      
-     //this.store.dispatch(TREE_SETACTIVE({path:[],id:"123"}))
-     
+     //this.store.dispatch(actions.ADD_ENTITY({path:["456"],entity:{id:'450',category:"profile"}}))
+
+
     
      
   }
   ngAfterViewInit(){
   
-    //  this.activeID$= this.store.select(entityTreeActiveIDLevelSelector("profile",this.container.level+1,"profile"))
-    //  this.activeID$.subscribe(activeID=>console.log("Active ID LEVEL:",activeID))
       
   }
-  UpdateID(){
-    let id = this.frm.get("id")!.value  
-    this.store.dispatch(A({ID:id}))
-    
-  }
-  SetActive(){
-    let id = this.frm.get("id")!.value
-    this.store.dispatch(B({ID:id}))
-  }
-  DeActivate(){
-    let id = this.frm.get("id")!.value
-    this.store.dispatch(D())
-  }
-  SearchID(){
-    let id = this.frm.get("id")!.value
-    this.store.dispatch(S({ID:id}))
-  }
-  F(){
-    this.store.dispatch(F())
-    
-  }
-  T1(){
-    this.store.dispatch(A1({A1:"Hello"}))
-  }
-  T2(){
-    this.store.dispatch(A2({A2:"Hello2"}))
-  }
-  T1T2(){
-    let a1:any= new Array(1000)
-    let a2:any= new Array(1000)
-
-    for (let i=0;i<1000;i++)
-    {
-      a1[i] = A1({A1:"bye1"+i})
-      a2[i] = A2({A2:"bye2"+i})
-    
-      
-    }
-    this.store.dispatch(createCompositeAction("A",...a1,...a2))
-  }
-  T1_T2(){
-    for (let i=0;i<1000;i++){
-      this.store.dispatch(A1({A1:"SeeYa1"+i}))
-      this.store.dispatch(A2({A2:"SeeYa2"+i}))  
-    }
-    
-  }
-  EFFECT(){
-    this.store.dispatch(A1A2())
-  }
-  Ope1(){
-    let id = this.frm.get("id")!.value
-    let ids = id.split(',')
-    let parent = ''
-    if (ids.length>1){
-        parent = ids[1]
-    }
-    
- //   let  context = this.shellContextService.addNewOperation(getCurrentContext$(),{id:ids[0],outlet:'profile',operation:[]},parent)
-
-  }
+  
+  
   DO(id:string){
     console.log("LEVEL ID",id)
-    this.store.dispatch(TREE_SETACTIVE({path:[],id:id}))
+    this.store.dispatch(MOST_createShellEntityAction("profile").ACTIVATE_ENTITY({path:[],entity:{id:id,category:"profileID"}}))
+   
+   
   }
-
+  NAVTO(id:string){
+    this.router.navigate([{outlets:{"profile":id}}])
+  }
+  
 }

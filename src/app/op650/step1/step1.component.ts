@@ -9,13 +9,14 @@ import { MOSTComponentService } from 'src/app/most/mostcomponent.service';
   selector: 'app-step1',
   templateUrl: './step1.component.html',
   styleUrls: ['./step1.component.css'],
-  providers:[MOSTComponentService]
+  
 })
 export class Step1Component implements OnInit {
   operationPath=[]
   constructor(private store:Store<any>,public mostComponentService:MOSTComponentService) {
      this.store.select(entityTreeActivePathSelector("profile"))
-     .subscribe(path=>this.operationPath = path)
+     .subscribe(path=>{this.operationPath = path;console.log("STEP 1 PATH",path)}
+      )
      
    }
 
@@ -27,5 +28,6 @@ export class Step1Component implements OnInit {
     email:new FormControl('',Validators.email)
   }
   )
+
 
 }

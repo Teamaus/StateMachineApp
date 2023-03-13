@@ -15,6 +15,8 @@ import { AppModule } from '../app.module';
 import { MOSTModule } from '../most/most.module';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { EntityModule } from '../entity/entity.module';
+
 
 @NgModule({
   declarations: [
@@ -24,6 +26,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     Step3Component,
     TestOp650Component,
     
+    
   ],
   imports: [
     CommonModule,
@@ -31,7 +34,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     AtlasReduxModule,
     MOSTModule,
     StoreModule.forFeature("op650",op650Reducer),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    EntityModule
   ]
 })
 export class Op650Module { }
