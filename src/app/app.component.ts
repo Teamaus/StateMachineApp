@@ -4,18 +4,19 @@ import { Router } from '@angular/router';
 import {  Store} from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { MAP_TOKEN } from '../../../MapApp/src/app/MapToken';
-import { entitiesByActiveCategorySelector, entityTreeActiveIDLevelSelector, entityTreeActivePathSelector, entityTreeIDSelector, entityTreePathSelector, pathByActiveCategorySelector, TREE_ADDENTITY, TREE_SETACTIVE } from './EntityTree.reducer';
-import { most_log } from './most/most.log';
-import { MOSTComponentService } from './most/mostcomponent.service';
+
+
+
 import { MOSTShell_EntityActions, MOST_createShellEntityAction } from './MOSTShell.actions';
-import { AtlasShell_createEntityAction } from 'atlas-shell-logic';
+import { AtlasShell_createEntityAction, entitiesByActiveCategorySelector, entityTreeActiveIDLevelSelector, entityTreeActivePathSelector, pathByActiveCategorySelector } from 'atlas-shell-logic';
+import { atlas_log } from 'atlas-utils';
 
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers:[MOSTComponentService]
+  
 })
 export class AppComponent {
   title = 'StateMachineApp';
@@ -31,13 +32,13 @@ export class AppComponent {
      console.log("Running",this.token)
       
       this.store.select(state=>state)
-      .subscribe(state=>{most_log(this,"STATE IS :",state);this.activeID = state.profile.activeID})
+      .subscribe(state=>{atlas_log(this,"STATE IS :",state);this.activeID = state.profile.activeID})
       
       this.store.select(entitiesByActiveCategorySelector("profile","profile"))
       .subscribe(s=>console.log("ACTIVE ENTITY",s))
       
       this.store.select(pathByActiveCategorySelector("profile","step"))
-      .subscribe(p=>most_log(this,"ACTIVE CATEGORY PATH step",p))
+      .subscribe(p=>atlas_log(this,"ACTIVE CATEGORY PATH step",p))
    
       
      this.store.select(state=>state)

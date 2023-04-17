@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { entityTreeActivePathSelector } from 'src/app/EntityTree.reducer';
 
-import { AtlasShellComponentService } from 'atlas-shell-logic'
+
+import { AtlasShellComponentService, entityTreeActivePathSelector } from 'atlas-shell-logic'
 import { EchoAction } from './step1.effect';
 
 @Component({
