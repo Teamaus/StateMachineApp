@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AtlasComponentContainerComponent, entityActions } from 'atlas-redux';
-import { TREE_ADDENTITY } from 'src/app/EntityTree.reducer';
-import { most_log } from 'src/app/most/most.log';
-import { MOSTComponentService } from 'src/app/most/mostcomponent.service';
+import { AtlasShellComponentService } from 'atlas-shell-logic';
+import { atlas_log } from 'atlas-utils';
+
+
+
 
 
 
@@ -16,7 +18,7 @@ import { MOST_createShellEntityAction } from 'src/app/MOSTShell.actions';
   selector: 'app-op650',
   templateUrl: './op650.component.html',
   styleUrls: ['./op650.component.css'],
-  providers:[MOSTComponentService]
+  providers:[AtlasShellComponentService]
 })
 export class Op650Component implements OnInit {
   step$ = this.store.select(state=>state.op650.step)
@@ -26,7 +28,7 @@ export class Op650Component implements OnInit {
   URL = this.router.url
   actions = MOST_createShellEntityAction("profile")
   @ViewChild(AtlasComponentContainerComponent) container!:AtlasComponentContainerComponent
-  constructor(private store:Store<any>,private router:Router,private activatedRoute:ActivatedRoute,private compService:MOSTComponentService) {
+  constructor(private store:Store<any>,private router:Router,private activatedRoute:ActivatedRoute,private compService:AtlasShellComponentService) {
       console.log("We are here")
       this.compService.compName="OP650"
      
@@ -52,15 +54,15 @@ export class Op650Component implements OnInit {
     console.log("ACTIVATED ROUTE=>>>",act)
   }
   addEntities(add:boolean){
-    most_log(this,"ADD ENTITIES",add?"T":"F")
+    atlas_log(this,"ADD ENTITIES",add?"T":"F")
     if (add){
       
       this.DO("2")
-      most_log(this,"2 ADDED")
+      atlas_log(this,"2 ADDED")
       this.DO("1")
-      most_log(this,"1 ADDED")
+      atlas_log(this,"1 ADDED")
       this.DO2("3") 
-      most_log(this,"3 ADDED")
+      atlas_log(this,"3 ADDED")
      
     }
   }

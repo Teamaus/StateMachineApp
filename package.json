@@ -23,13 +23,16 @@
     "@ngrx/entity": "^12.5.1",
     "@ngrx/store": "^12.5.1",
     "atlas-redux": "file:../AtlasShellWS/dist/atlas-redux",
+    "atlas-shell-logic": "file:../AtlasShellLibWS/dist/atlas-shell-logic",
+    "atlas-shell-ui": "file:../AtlasShellLibWS/dist/atlas-shell-ui",
+    "atlas-utils": "file:../AtlasShellLibWS/dist/atlas-utils",
     "rxjs": "~6.6.0",
     "tslib": "^2.1.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~12.0.0",
-    "@angular/cli": "~12.0.0",
+    "@angular-devkit/build-angular": "^12.2.18",
+    "@angular/cli": "^12.2.18",
     "@angular/compiler-cli": "~12.0.0",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",

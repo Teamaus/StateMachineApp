@@ -1,10 +1,10 @@
-import { state } from "@angular/animations"
-import { reportInvalidActions } from "@ngrx/effects/src/effect_notification"
+
+
 import { createEntityAdapter, EntityAdapter, EntityState } from "@ngrx/entity"
-import { entityActions, getAdapterSelectors } from "atlas-redux"
-import { tree } from "d3"
-import { find } from "rxjs/operators"
-import { Context, ContextAdapter, createContextAdapter } from "./context.model"
+
+
+
+
 import { most_log } from "./most/most.log"
 
 export interface EntityTree<T extends {id:string,path:string}>{
@@ -230,6 +230,27 @@ export class TreeEntityAdapter{
         return retval 
 
     }
+    getActiveEntityByPath(state:EntityState<any>,path:string[]){
+            let obj:any=state
+            let retval:any = undefined 
+            if (path.length==0)
+            {
+                most_log(this,"RETVAL==>>0 getActiveEntityByPath:",obj)
+                return obj
+            }
+            
+            if (obj && obj.activeID){
+                let [first,...rest] = path
+                if (obj.activeID[first]){
+                    retval= this.getActiveEntityByPath(obj.entities[obj.activeID[first]],rest)
+                }
+               
+
+            }
+            most_log(this,"RETVAL getActiveEntityByPath:",retval)
+            return retval
+            
+    }
     getActiveEntity(state:EntityState<any>,outlet:string){
         let obj:any = state 
         let retval:any = {}
@@ -248,7 +269,7 @@ export class TreeEntityAdapter{
             
         
         }
-        console.log("RETVAL",retval)
+        most_log(this.getActiveEntity,"RETVAL",retval,"OUTLET:",outlet)
         return retval 
         
     }

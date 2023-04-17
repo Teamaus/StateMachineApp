@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
-import { filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, skip, skipLast, switchMap, take, takeLast, takeUntil, tap } from 'rxjs/operators';
 import { entitiesByActiveCategorySelector, entitiesTreeSelector, entityTreeActiveIDLevelSelector, treeEntityAdapter } from 'src/app/EntityTree.reducer';
 import { most_log } from 'src/app/most/most.log';
 import { MOSTComponentService } from 'src/app/most/mostcomponent.service';
@@ -18,14 +19,28 @@ export class AtlasEntityPanelComponent implements OnInit {
   @Input() slice =''
   @Input() category=''
   @Input() entitiesCategory = ''
+  @Input() parentCategory = ''
   destroy$ = new Subject()
   keys$ :any
   activeID$:any
   entities:string[] = []
   @Output() addEntities:EventEmitter<boolean> = new EventEmitter<boolean>()
-  constructor(private store:Store<any>,private componentService:MOSTComponentService) {
-        most_log(this,"COMPNAME:",this.componentService.compName)
+  constructor(private store:Store<any>,private router:Router) {
+         this.router.events.pipe(
+          filter(event=>event instanceof NavigationEnd)
+
+         )
+         .subscribe(
+           event=>{
+
+            most_log(this,"NavigationEnd",this.category,this.parentCategory)
+            
+           }
+           
+         )
    }
+
+
 
   ngOnInit(): void {
     let selector = createSelector(
@@ -48,7 +63,7 @@ export class AtlasEntityPanelComponent implements OnInit {
       entitiesByActiveCategorySelector(this.slice,this.category),
       (activeID:any)=>activeID.path
     )
-   
+   let selector3 = entitiesByActiveCategorySelector(this.slice,this.parentCategory)
    this.store.select(selector2).subscribe(path=>this.path=path)
     
     this.keys$ = this.store.select(selector)
@@ -56,10 +71,12 @@ export class AtlasEntityPanelComponent implements OnInit {
     this.keys$.subscribe((a:any)=>most_log(this,"AAA=>>>",a))
     //this.keys$.pipe(take(1))
     most_log(this,"SELECT$ SUBSCRIBE")
-    let one$ = new Subject()
-    this.componentService.stop$.subscribe(v=>console.log("SUBSTOP$ NEXT COMPLETED",v))
-   let obs$ = this.keys$.pipe(takeUntil(one$),
-   takeUntil(this.destroy$))
+    let one$ = this.store.select(selector3).pipe(skip(1))
+    
+   let obs$ = this.keys$.pipe(
+    tap(p=>p),
+    takeUntil(one$)
+   )
     obs$.subscribe(
         (a:any)=>
         {
@@ -74,7 +91,7 @@ export class AtlasEntityPanelComponent implements OnInit {
 
     )
     
-    one$.next()
+    
      
     
     

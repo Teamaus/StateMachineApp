@@ -7,3 +7,4 @@ export function most_log(swComponent:any,...logMessages:any[]){
         print()
     }
 }
+

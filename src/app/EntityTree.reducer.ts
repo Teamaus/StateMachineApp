@@ -57,7 +57,7 @@ createSelector(
 export const entityTreeActiveSnapShotSelector=(slice:string,outlet:string)=>
 createSelector(
     createFeatureSelector(slice),
-   
+    
     (state:any)=>treeEntityAdapter.getActiveEntity(state,outlet).snapShot
 )
 
@@ -75,6 +75,16 @@ export const pathByActiveCategorySelector = (slice:string,category:string)=>crea
     createFeatureSelector(slice),
     (state:any)=>treeEntityAdapter.getActivCategoryPath(state,category)
 )
+
+
+export const entitiesByActiveCategoryPathSelector = (slice:string,categoryPath:string[])=>createSelector(
+    createFeatureSelector(slice),
+    (state:any)=>treeEntityAdapter.getActiveEntityByPath(state,categoryPath)
+)
+
+
+
+
 
 
 

@@ -8,6 +8,7 @@ import { entitiesByActiveCategorySelector, entityTreeActiveIDLevelSelector, enti
 import { most_log } from './most/most.log';
 import { MOSTComponentService } from './most/mostcomponent.service';
 import { MOSTShell_EntityActions, MOST_createShellEntityAction } from './MOSTShell.actions';
+import { AtlasShell_createEntityAction } from 'atlas-shell-logic';
 
 
 @Component({
@@ -50,7 +51,7 @@ export class AppComponent {
      this.activeID$= this.store.select(entityTreeActiveIDLevelSelector("profile",1,"profile"))
      this.activeID$.subscribe(activeID=>console.log("Active ID LEVEL:",activeID))
      
-     let actions = MOST_createShellEntityAction("profile") as MOSTShell_EntityActions
+     let actions = AtlasShell_createEntityAction("profile") as MOSTShell_EntityActions
      console.log("ACTIONS=>",actions)
      this.store.dispatch(actions.ADD_ENTITY({path:[],entity:{id:'123',category:"profileID"}}))
      this.store.dispatch(actions.ADD_ENTITY({path:["123"],entity:{id:'650',category:"profile"}}))

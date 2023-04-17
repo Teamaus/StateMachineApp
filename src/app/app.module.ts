@@ -7,13 +7,13 @@ import { AtlasComponentContainerComponent, AtlasComposeReducers, AtlasReduxModul
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { bReducer, compositeActionMetaReducer, getActivePath, getSearchPath, mappedReducer, metaReducers, myReducer } from './StateMachine.reducer';
+
 import { T1Reducer, T2Reducer } from './TestReducers';
 import { EffectsModule } from '@ngrx/effects';
-import { EffectService, SLICES } from './effect.service';
 
-import {  entityTreeReducer } from './EntityTree.reducer';
-import { Op650Module } from './op650/op650.module';
+
+
+
 import { EmptyComponent } from './empty/empty.component';
 import { MOSTAppContainerComponent } from './most/mostapp-container/mostapp-container.component';
 import { MOSTModule } from './most/most.module';
@@ -21,6 +21,11 @@ import { TestExpressionsComponent } from './test-expressions/test-expressions.co
 import { EntityModule } from './entity/entity.module';
 import {HttpClientModule} from '@angular/common/http'
 import {MAP_TOKEN} from '../../../MapApp/src/app/MapToken'
+
+import {entityTreeReducer,AtlasShellEffectService, SLICES, metaReducers, AtlasShellLogicModule} from 'atlas-shell-logic'
+import { AtlasShellUIModule } from 'atlas-shell-ui';
+
+
 
 
 @NgModule({
@@ -35,6 +40,8 @@ import {MAP_TOKEN} from '../../../MapApp/src/app/MapToken'
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    AtlasShellUIModule,
+    AtlasShellLogicModule,
     
     AtlasReduxModule,
     EntityModule,
@@ -42,10 +49,7 @@ import {MAP_TOKEN} from '../../../MapApp/src/app/MapToken'
     
     
     StoreModule.forRoot({profile:entityTreeReducer("profile")},{metaReducers}),
-    
-    
-    
-    EffectsModule.forRoot([EffectService]),
+    EffectsModule.forRoot([AtlasShellEffectService]),
     
     
     

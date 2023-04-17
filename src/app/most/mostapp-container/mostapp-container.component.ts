@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { filter, map, take, tap } from 'rxjs/operators';
 
 import { entityTreeActiveIDLevelSelector } from '../../EntityTree.reducer';
+import { most_log } from '../most.log';
 
 
 import { MOSTContainerService } from '../mostcontainer.service';
@@ -41,7 +42,9 @@ export class MOSTAppContainerComponent implements OnInit {
           tap(path=>console.log("PATH=>",path)),
           map(path=>[(outlet as any).name,path]),
           map(([name,path])=>{return (!path||!path[name])?[name,{[name]:"EMPTY"}]:[name,path]}),
+          tap(obj=>most_log(this,"SELECTORS NAV Before",obj)),
           filter((([name,path])=>this.mostContainerService.currentPath[name]!=path[name])),
+          tap(obj=>most_log(this,"SELECTORS NAV After",obj)),
           map(([name,path])=>path)
           )
       .subscribe(

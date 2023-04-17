@@ -1,21 +1,16 @@
-<div>
-<button (click)="NAVTO('450')">Map FE</button>
-</div>
-<div>
+<atlas-shell-add-entity></atlas-shell-add-entity>
 <div>Profile</div>
-<atlas-entity-panel slice="profile" category="profileID"></atlas-entity-panel>
-<atlas-add-entity slice="profile" category="profileID"></atlas-add-entity>
+<div>
+<atlas-shell-entity-panel slice="profile" category="profileID" parentCategory="profileID"></atlas-shell-entity-panel>
+<atlas-shell-add-entity slice="profile" category="profileID"></atlas-shell-add-entity>
 </div>
 <!--<atlas-component-container outletName="profile" [path]="activeID$"></atlas-component-container>-->
 <div>Operations</div>
-<atlas-entity-panel slice="profile" category="profile" [path]="['123']" ></atlas-entity-panel>
-<atlas-add-entity slice="profile" category="profile" [path$]="path$"></atlas-add-entity>
+<atlas-shell-entity-panel slice="profile" category="profile" parentCategory="profileID" ></atlas-shell-entity-panel>
+<atlas-shell-add-entity slice="profile" category="profile" [categoryPath]="['profileID']"></atlas-shell-add-entity>
 
-<most-app-container name="MAIN">
+<atlas-shell-container name="MAIN">
     <router-outlet name="profile"></router-outlet>
     
-</most-app-container>
-<router-outlet>
-
-</router-outlet>
+</atlas-shell-container>
 

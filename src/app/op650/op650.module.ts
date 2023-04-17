@@ -16,6 +16,10 @@ import { MOSTModule } from '../most/most.module';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { EntityModule } from '../entity/entity.module';
+import { EffectsModule } from '@ngrx/effects';
+import { Step1EchoService } from './step1/step1.effect';
+import { AtlasShellLogicModule } from 'atlas-shell-logic';
+import { AtlasShellUIModule } from 'atlas-shell-ui';
 
 
 @NgModule({
@@ -32,8 +36,11 @@ import { EntityModule } from '../entity/entity.module';
     CommonModule,
     Op650RoutingModule,
     AtlasReduxModule,
-    MOSTModule,
+    
+    AtlasShellLogicModule,
+    AtlasShellUIModule,
     StoreModule.forFeature("op650",op650Reducer),
+    EffectsModule.forFeature([Step1EchoService]),
     ReactiveFormsModule,
     EntityModule
   ]

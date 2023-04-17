@@ -7,7 +7,7 @@ import { most_log } from './most.log';
 export interface SnapshotEntry{
   path:string[],
   obj:any,
-  stop$:Subject<any>
+ 
   valueObjFunc:(obj:any)=>any,
   outlet:string,
   compName:string
@@ -29,6 +29,18 @@ export class MOSTSnapshotService {
     return this.registerSnapshotEntry
 
   }
+  updateSnaphot$(key:string,value:any):Observable<any>{
+      most_log(this,"OBJ=>>>",this.snapShotRegistry[0].obj.get(key))
+      this.snapShotRegistry[0].obj.get(key).setValue(value)
+      return of(NOACTION)
+  }
+  updateSnapshotMetaData(obj:any){
+
+  }
+  updateSnapshotValue(obj:any){
+      //Object.keys(obj).map(key=>
+  } 
+  
   saveSnapshot(slice:string){
     let actions = this.snapShotRegistry.map(snapshotEntry=>
       ADD_SNAPSHOT(slice)({path:snapshotEntry.path,snapshot:snapshotEntry.valueObjFunc(snapshotEntry.obj)}))
@@ -43,7 +55,7 @@ export class MOSTSnapshotService {
     let actions = this.snapShotRegistry.map(snapshotEntry=>
       {
         console.log("SNAPSHOT REGISTRY$",snapshotEntry)
-      snapshotEntry.stop$.next(snapshotEntry.outlet)  
+    
       return ADD_SNAPSHOT(slice)({path:snapshotEntry.path,snapshot:snapshotEntry.valueObjFunc(snapshotEntry.obj)})
       }
     )
